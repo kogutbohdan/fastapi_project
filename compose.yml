@@ -9,6 +9,7 @@ services:
       - db
     volumes:
       - .:/app
+      - /app/.venv
   db:
     image: postgres:15-alpine
     environment:
