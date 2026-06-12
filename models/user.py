@@ -9,4 +9,5 @@ class User(BaseModel):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     username: Mapped[str] = mapped_column(String(100), unique=True)
     email: Mapped[str] = mapped_column(String(100), unique=True)
+    password: Mapped[str] = mapped_column(String(100), unique=True)
     massages: Mapped[list["Massage"]] = relationship(back_populates="user")
