@@ -1,13 +1,14 @@
 from datetime import datetime
 
 from fastapi import Depends
-from sqlalchemy import select
+from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from models.massag import Massage
 from models.user import User
 from settings.db import get_db
-from shemes.shemes import MassageSchemePut
+from shemes.shemes import MassageSchemePut, MassageShemeUpdate
 
 
 class MassageServies:
@@ -15,20 +16,39 @@ class MassageServies:
         self.db = db
 
     async def get_massages(self):
-        massages = [
+        massages = await self.db.scalars(
+            select(Massage).options(selectinload(Massage.user))
+        )
+        return [
             {
+                "id": massage.id,
                 "username": massage.user.username,
                 "text": massage.text,
                 "date": massage.date,
             }
-            for massage in await self.db.scalars(select(Massage)).all()
+            for massage in massages.all()
         ]
-        return massages
 
     async def send_massages(self, massage: MassageSchemePut):
         user_id = 1
         user = await self.db.scalar(select(User).where(User.id == user_id))
         self.db.add(Massage(text=massage.text, date=datetime.now(), user=user))
+        return {"ok": True}
+
+    async def update_massage(self, massage: MassageShemeUpdate):
+        user_id = 1
+        await self.db.execute(
+            update(Massage)
+            .where(Massage.id == massage.id, Massage.user_id == user_id)
+            .values(text=massage.text)
+        )
+        return {"ok": True}
+
+    async def remove_massage(self, id: int):
+        user_id = 1
+        await self.db.execute(
+            delete(Massage).where(Massage.id == id, Massage.user_id == user_id)
+        )
         return {"ok": True}
 
 

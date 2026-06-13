@@ -8,6 +8,12 @@ class MassageSchemePut(BaseModel):
 
 
 class MassageShemeRead(BaseModel):
+    id: int
     text: str
-    user_name: str
+    username: str = Field(..., max_length=100)
     date: datetime
+
+
+class MassageShemeUpdate(BaseModel):
+    id: int
+    text: str
