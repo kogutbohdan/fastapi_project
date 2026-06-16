@@ -1,16 +1,18 @@
 import logging
 
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, status
+from fastapi import APIRouter, Depends, FastAPI, File, HTTPException, UploadFile, status
 
+from services.files import add_file
 from services.massage import MassageServies, get_massage_servies
 from settings.db import *
-from shemes.shemes import MassageSchemePut, MassageShemeRead, MassageShemeUpdate
+from shemes.massages import MassageSchemePut, MassageShemeRead, MassageShemeUpdate
 
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
 router = APIRouter(prefix="/massage", tags=["Massages"])
+router_files = APIRouter(prefix="/files", tags=["Files"])
 
 
 @app.get("/")
@@ -20,10 +22,12 @@ def home():
 
 @router.post("/")
 async def send_massage(
-    massage: MassageSchemePut, servies: MassageServies = Depends(get_massage_servies)
+    massage: MassageSchemePut = Depends(),
+    file: UploadFile | None = File(None),
+    servies: MassageServies = Depends(get_massage_servies),
 ):
     try:
-        return await servies.send_massages(massage)
+        return await servies.send_massages(massage, await add_file(file))
     except HTTPException:
         raise
     except Exception as exc:
@@ -50,10 +54,12 @@ async def get_massage(servies: MassageServies = Depends(get_massage_servies)):
 
 @router.put("/")
 async def update_massage(
-    massage: MassageShemeUpdate, servies: MassageServies = Depends(get_massage_servies)
+    massage: MassageShemeUpdate = Depends(),
+    file: UploadFile | None = File(None),
+    servies: MassageServies = Depends(get_massage_servies),
 ):
     try:
-        return await servies.update_massage(massage)
+        return await servies.update_massage(massage, await add_file(file))
     except HTTPException:
         raise
     except Exception as exc:
@@ -92,3 +98,4 @@ async def db_healthcheck():
 
 
 app.include_router(router)
+app.include_router(router_files)

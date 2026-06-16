@@ -11,6 +11,7 @@ class MassageShemeRead(BaseModel):
     id: int
     text: str
     username: str = Field(..., max_length=100)
+    path: str | None = None
     date: datetime
 
 
