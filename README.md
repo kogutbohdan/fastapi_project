@@ -1,100 +1,101 @@
-# FastAPI Project with uv
+# Messages API
 
-Навчальний проєкт для ознайомлення з менеджером пакетів **uv**, фреймворком **FastAPI**, лінтером **Ruff** та системою автоматичних перевірок **pre-commit**.
+REST API для обміну повідомленнями між користувачами.
 
-## Вимоги
+Додаток розроблений на базі FastAPI та PostgreSQL. Підтримує:
 
-Перед початком роботи необхідно встановити:
+* створення повідомлень;
+* редагування повідомлень;
+* видалення повідомлень;
+* завантаження файлів до повідомлень;
+* отримання списку повідомлень;
+* формування звітів по повідомленнях.
 
-* Python 3.10+
+## Технології
+
+* FastAPI
+* SQLAlchemy Async
+* PostgreSQL
+* Alembic
+* Docker
+* Docker Compose
 * uv
-* Git
 
-## Встановлення проєкту
+## Запуск проєкту
 
-Клонуйте репозиторій:
+### 1. Клонувати репозиторій
 
 ```bash
 git clone <repository_url>
 cd <project_name>
 ```
 
-Синхронізуйте залежності:
+### 2. Створити файл `.env`
+
+Приклад:
+
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=fastapi_db
+
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/fastapi_db
+```
+
+### 3. Запустити контейнери
 
 ```bash
-uv sync
+docker compose up --build
 ```
 
-## Запуск проєкту
+## Міграції бази даних
 
-Запустіть FastAPI застосунок:
+Після запуску контейнерів необхідно застосувати міграції Alembic.
+
+Виконати команду:
 
 ```bash
-uv run fastapi dev main.py
+docker compose exec web uv run alembic upgrade head
 ```
 
-Після запуску застосунок буде доступний за адресою:
-
-```text
-http://127.0.0.1:8000
-```
-
-Головний маршрут:
-
-```text
-GET /
-```
-
-Очікувана відповідь:
-
-```json
-{
-  "message": "Hello World!"
-}
-```
-
-## Перевірка якості коду
-
-Запуск усіх pre-commit перевірок:
+Якщо потрібно створити нову міграцію:
 
 ```bash
-uv run pre-commit run --all-files
+docker compose exec web uv run alembic revision --autogenerate -m "migration_name"
 ```
 
-Запуск Ruff вручну:
+Після створення застосувати її:
 
 ```bash
-uv run ruff check .
+docker compose exec web uv run alembic upgrade head
 ```
 
-Форматування коду:
+## Docker Compose
+
+Проєкт складається з двох сервісів:
+
+### web
+
+FastAPI додаток.
+
+* порт: 8000
+* автоматичне перезавантаження при зміні коду
+
+### db
+
+PostgreSQL 15.
+
+* порт: 5432
+* збереження даних через Docker Volume
+
+## Зупинка проєкту
 
 ```bash
-uv run ruff format .
+docker compose down
 ```
 
-## Структура проєкту
+Для видалення контейнерів разом із томами:
 
-```text
-.
-├── main.py
-├── README.md
-├── pyproject.toml
-├── uv.lock
-├── .gitignore
-└── .pre-commit-config.yaml
+```bash
+docker compose down -v
 ```
-
-## Використані технології
-
-* FastAPI
-* uv
-* Ruff
-* pre-commit
-* Git
-
-## Автор
-
-Когут Богдан Васильвич
-
-Студентський навчальний проєкт.
