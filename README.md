@@ -35,8 +35,8 @@ cd <project_name>
 Приклад:
 
 ```env
-DATABASE_URL="addres_of_db
-JWT_SECRET_KEY="secret_key"
+DATABASE_URL=addres_of_db
+JWT_SECRET_KEY=secret_key
 ```
 
 ### 3. Запустити контейнери
