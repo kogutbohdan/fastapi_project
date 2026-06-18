@@ -202,3 +202,7 @@ pyrightconfig.json
 # End of https://www.toptal.com/developers/gitignore/api/python,linux
 #my folders
 upload_files/
+
+#my files
+massage_report.pdf 
+user_report.pdf

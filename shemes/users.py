@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr
 
 
-class UserSheme(BaseModel):
+class UserRegistrationSheme(BaseModel):
     username: str
     password: str
     email: EmailStr

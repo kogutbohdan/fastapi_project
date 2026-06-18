@@ -4,7 +4,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from settings.configs.app import db_settings
+from settings.configs.data_base import db_settings
 
 DATABASE_URL = db_settings.DATABASE_URL
 

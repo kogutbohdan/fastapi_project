@@ -1,3 +1,5 @@
+import os
+import re
 from datetime import datetime
 
 from fastapi import Depends
@@ -31,16 +33,24 @@ class MassageServies:
             for massage in massages.all()
         ]
 
-    async def send_massages(self, massage: MassageSchemePut, path: str | None):
-        user_id = 1
+    async def get_all_massages_for_report(self):
+        return [
+            f"username:{massage["username"]} \ntext:{massage["text"]} \npath:{massage["path"] if massage["path"] else "Немає файлу в цьому повідомленні"} \ndate:{massage["date"]}"
+            for massage in await self.get_massages()
+        ]
+
+    async def send_massages(
+        self, user_id: int, massage: MassageSchemePut, path: str | None
+    ):
         user = await self.db.scalar(select(User).where(User.id == user_id))
         self.db.add(
             Massage(text=massage.text, date=datetime.now(), user=user, path=path)
         )
         return {"ok": True}
 
-    async def update_massage(self, massage: MassageShemeUpdate, path: str | None):
-        user_id = 1
+    async def update_massage(
+        self, user_id: int, massage: MassageShemeUpdate, path: str | None
+    ):
         await self.db.execute(
             update(Massage)
             .where(Massage.id == massage.id, Massage.user_id == user_id)
@@ -48,11 +58,24 @@ class MassageServies:
         )
         return {"ok": True}
 
-    async def remove_massage(self, id: int):
-        user_id = 1
-        await self.db.execute(
-            delete(Massage).where(Massage.id == id, Massage.user_id == user_id)
+    async def remove_massage(self, user_id: int, id: int):
+        massage = await self.db.scalar(
+            select(Massage).where(Massage.id == id, Massage.user_id == user_id)
         )
+        if massage:
+            if (
+                massage.path
+                and len(
+                    (
+                        await self.db.scalars(
+                            select(Massage).where(Massage.path == massage.path)
+                        )
+                    ).all()
+                )
+                == 1
+            ):
+                os.remove(massage.path)
+            await self.db.delete(massage)
         return {"ok": True}
 
 
