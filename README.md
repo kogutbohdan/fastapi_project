@@ -35,11 +35,8 @@ cd <project_name>
 Приклад:
 
 ```env
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_DB=fastapi_db
-
-DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/fastapi_db
+DATABASE_URL="addres_of_db
+JWT_SECRET_KEY="secret_key"
 ```
 
 ### 3. Запустити контейнери
